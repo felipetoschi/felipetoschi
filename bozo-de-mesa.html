@@ -127,7 +127,7 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
 .seathead span{font-size:18px}
 .seathead .wins{font-size:12px;padding:1px 7px}
 .sheet{grid-template-rows:repeat(4,1fr);height:calc(100% - 30px);box-sizing:border-box}
-.cell{min-height:0;padding:1px}
+.cell{min-height:0;padding:0 3px;gap:0;overflow:hidden;justify-content:space-evenly}
 .cell small{font-size:9px}
 .cell b{font-size:16px;min-height:17px}
 #roll{width:96px;height:108px}
@@ -146,8 +146,9 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
 /* As cartelas encolhem com a tela, mas nunca perdem a orientação de cada lado */
 .seathead b{font-size:calc(var(--cw) * .09)}
 .seathead span{font-size:calc(var(--cw) * .1)}
-.cell small{font-size:calc(var(--cw) * .037)}
-.cell b{font-size:calc(var(--cw) * .1)}
+.cell small{font-size:calc(var(--cw) * .032);line-height:1;white-space:nowrap;margin-top:.5em}
+/* A letra de mão desenha os números baixos dentro da linha; sobe um pouco para ficarem no meio do espaço */
+.cell b{font-size:calc(var(--cw) * .08);line-height:1;min-height:0;transform:translateY(-.12em)}
 @media (prefers-reduced-motion:reduce){.die.tumble,.die.land,.die.flip,#roll.shake .cup{animation:none}}
 </style>
 
@@ -311,7 +312,7 @@ function renderDice(){
 /* Linhas da cartela riscadas à mão: cada traço sai um pouco torto, mas igual a cada desenho do mesmo jogador */
 function sheetLines(seed){
   let s=seed*7919+13;const rnd=()=>(s=(s*9301+49297)%233280)/233280,j=n=>(rnd()-.5)*n;
-  const line=(x1,y1,x2,y2)=>`<path d="M${x1+j(3)} ${y1+j(3)} Q${(x1+x2)/2+j(5)} ${(y1+y2)/2+j(5)} ${x2+j(3)} ${y2+j(3)}"/>`;
+  const line=(x1,y1,x2,y2)=>`<path d="M${x1+j(1.5)} ${y1+j(1.5)} Q${(x1+x2)/2+j(2.5)} ${(y1+y2)/2+j(2.5)} ${x2+j(1.5)} ${y2+j(1.5)}"/>`;
   /* Duas colunas de 3 casas (Ás a Sena) e a coluna da direita com 4 (Full a General) */
   return `<svg class="lines" viewBox="0 0 300 200" preserveAspectRatio="none" aria-hidden="true">${
     line(100,4,100,148)+line(200,3,200,197)+line(5,50,296,51)+line(4,100,295,99)+line(206,150,294,151)}</svg>`;
