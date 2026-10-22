@@ -1,11 +1,11 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Bozó de Mesa</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Nunito:wght@600;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Caveat:wght@500;700&family=Nunito:wght@600;800;900&display=swap">
 <style>
 /* Layout: o tablet é a mesa. Copo e dados no meio; a cartela de cada jogador fica na borda, virada para quem está sentado ali. Visual único: feltro verde de mesa de bar com borda de madeira. */
 :root{
-  --felt:#1f5a3a; --felt2:#2b7a4f; --wood:#5a3518; --wood2:#8a5426; --paper:#fbf5e6; --ink:#24170e; --gold:#f0b93a; --red:#b3202f; --muted:#cfe3d6; --line:#ffffff26;
+  --felt:#1f5a3a; --felt2:#2b7a4f; --wood:#5a3518; --wood2:#8a5426; --paper:#fbf5e6; --ink:#24170e; --gold:#f0b93a; --red:#b3202f; --muted:#cfe3d6;--pen:#23306b;--pencil:#a39a8c;--hand:"Caveat","Comic Sans MS",cursive; --line:#ffffff26;
   --display:"Alfa Slab One",Georgia,serif;
   --body:"Nunito",system-ui,sans-serif;
   color-scheme:dark;
@@ -48,27 +48,25 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
 .slot.left,.slot.right{width:var(--ch);height:var(--cw)}
 .slot.top{--r:180deg}.slot.left{--r:90deg}.slot.right{--r:-90deg}
 
-.seat{background:var(--paper);color:var(--ink);border-radius:16px;padding:10px;width:min(100%,290px);box-shadow:0 8px 18px #0007;transition:box-shadow .25s,transform .25s;min-width:0}
+.seat{background:var(--paper);color:var(--ink);border-radius:5px;padding:10px;width:min(100%,290px);box-shadow:0 8px 18px #0007;transition:box-shadow .25s,transform .25s;min-width:0}
 .seat.cur{box-shadow:0 0 0 4px var(--gold),0 0 28px #f0b93a99}
 .seathead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px;padding:0 4px}
-.seathead b{font-family:var(--display);font-weight:400;font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.seathead .wins{font-style:normal;font-weight:900;font-size:15px;background:#f0b93a55;border-radius:999px;padding:2px 9px;margin-left:auto;font-variant-numeric:tabular-nums;white-space:nowrap}
-.seathead span{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums;color:var(--felt)}
+.seathead b{font-family:var(--hand);font-weight:700;color:var(--pen);font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.seathead .wins{font-style:normal;font-weight:800;font-size:15px;color:#9b8c78;padding:2px 9px;margin-left:auto;font-variant-numeric:tabular-nums;white-space:nowrap}
+.seathead span{font-family:var(--hand);font-weight:700;font-size:22px;color:var(--pen);border-bottom:2px solid var(--pen);border-radius:0 0 40% 60%/0 0 6px 4px;padding:0 4px;line-height:1}
 .seat.cur .seathead b::before{content:"🎲 "}
-/* Cartela do bozó: jogo da velha de pontos */
-.sheet{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--ink);border-radius:8px;overflow:hidden}
-.cell{border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 2px;line-height:1.05;background:none;border-top:none;border-left:none;font:inherit;color:inherit}
-.cell:nth-child(3n){border-right:none}
-.cell:nth-child(n+10){border-bottom:none}
-.cell small{font-size:10px;font-weight:800;color:#7a6250;text-transform:uppercase;letter-spacing:.5px}
-.cell b{font-size:19px;font-weight:900;font-variant-numeric:tabular-nums;min-height:20px}
-.cell.mid{background:#24170e0d}
-.cell.blank{background:#24170e14}
-.cell.zero b{color:var(--red)}
-.cell.prev{cursor:pointer;background:#f0b93a33}
-.cell.prev b{color:#8a6a50;font-weight:700}
-.cell.prev.sel{background:var(--gold)}
-.cell.prev.sel b{color:var(--ink);font-weight:900}
+/* Cartela do bozó: folha de papel, só as linhas de dentro, riscadas à mão com caneta */
+.sheet{display:grid;grid-template-columns:repeat(3,1fr);position:relative}
+.sheet .lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.sheet .lines path{fill:none;stroke:var(--pen);stroke-width:2.2;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.85}
+.cell{border:none;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 2px;line-height:1;background:none;font:inherit;color:inherit}
+.cell small{font-size:10px;font-weight:700;color:#9b8c78;text-transform:uppercase;letter-spacing:.6px}
+.cell b{font-family:var(--hand);font-size:19px;font-weight:700;color:var(--pen);min-height:20px;position:relative}
+.cell.prev{cursor:pointer}
+.cell.prev b{color:var(--pencil);font-weight:500}
+.cell.prev.sel b{color:var(--pen);font-weight:700}
+/* Casa escolhida: circulada à caneta */
+.cell.prev.sel b::after{content:"";position:absolute;inset:-3px -9px -1px;border:2px solid var(--pen);border-radius:52% 46% 55% 44%/48% 56% 44% 52%;transform:rotate(-6deg)}
 
 .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding-block:6px}
 .who{font-family:var(--display);font-size:clamp(20px,3vw,28px);color:var(--gold);text-shadow:0 2px 0 #0007;text-align:center}
@@ -142,10 +140,10 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
   transform:translate(-50%,-50%) rotate(var(--cr,0deg));transition:transform .6s cubic-bezier(.3,.8,.3,1)}
 @media (prefers-reduced-motion:reduce){.spin{transition:none}}
 /* As cartelas encolhem com a tela, mas nunca perdem a orientação de cada lado */
-.seathead b{font-size:calc(var(--cw) * .064)}
-.seathead span{font-size:calc(var(--cw) * .072)}
+.seathead b{font-size:calc(var(--cw) * .09)}
+.seathead span{font-size:calc(var(--cw) * .1)}
 .cell small{font-size:calc(var(--cw) * .037)}
-.cell b{font-size:calc(var(--cw) * .064)}
+.cell b{font-size:calc(var(--cw) * .1)}
 @media (prefers-reduced-motion:reduce){.die.tumble,.die.land,.die.flip,#roll.shake .cup{animation:none}}
 </style>
 
@@ -306,17 +304,25 @@ function renderDice(){
     const i=+d.dataset.i;G.held[i]=G.held[i]?0:1;tone(G.held[i]?700:450,.06,'triangle',.1);save();render();
   });
 }
+/* Linhas da cartela riscadas à mão: cada traço sai um pouco torto, mas igual a cada desenho do mesmo jogador */
+function sheetLines(seed){
+  let s=seed*7919+13;const rnd=()=>(s=(s*9301+49297)%233280)/233280,j=n=>(rnd()-.5)*n;
+  const line=(x1,y1,x2,y2)=>`<path d="M${x1+j(3)} ${y1+j(3)} Q${(x1+x2)/2+j(5)} ${(y1+y2)/2+j(5)} ${x2+j(3)} ${y2+j(3)}"/>`;
+  /* Duas colunas de 3 casas (Ás a Sena) e a coluna da direita com 4 (Full a General) */
+  return `<svg class="lines" viewBox="0 0 300 200" preserveAspectRatio="none" aria-hidden="true">${
+    line(100,4,100,148)+line(200,3,200,197)+line(5,50,296,51)+line(4,100,295,99)+line(206,150,294,151)}</svg>`;
+}
 function seatHTML(p,i){
   const cur=i===G.cur,canPick=cur&&G.rolls>0&&!busy;
   const cells=LAYOUT.map((id,k)=>{
     const mid=k%3===2?' mid':'';
     if(!id)return `<div class="cell blank${mid}"></div>`;
     const v=p.sc[id],name=CATS[id].n;
-    if(v!==undefined)return `<div class="cell${mid}${v===0?' zero':''}"><small>${name}</small><b>${v===0?'✕':v}</b></div>`;
+    if(v!==undefined)return `<div class="cell${mid}${v===0?' zero':''}"><small>${name}</small><b>${v===0?'X':v}</b></div>`;
     if(canPick){const pts=points(id,G.dice,deBoca());return `<button class="cell prev${mid}${G.sel===id?' sel':''}" data-c="${id}" aria-label="${name}: ${pts} pontos"><small>${name}</small><b>${pts||'–'}</b></button>`}
     return `<div class="cell${mid}"><small>${name}</small><b></b></div>`;
   }).join('');
-  return `<div class="seat${cur?' cur':''}"><div class="seathead"><b>${p.bot?'🤖 ':''}${esc(p.name)}</b><em class="wins" title="Partidas ganhas">🏆 ${G.wins[i]}</em><span>${total(p)}</span></div><div class="sheet">${cells}</div></div>`;
+  return `<div class="seat${cur?' cur':''}"><div class="seathead"><b>${p.bot?'🤖 ':''}${esc(p.name)}</b><em class="wins" title="Partidas ganhas">🏆 ${G.wins[i]}</em><span>${total(p)}</span></div><div class="sheet">${cells}${sheetLines(i+1)}</div></div>`;
 }
 /* Lugar de cada jogador em volta da mesa (a vez passa no sentido horário) */
 /* Jogador 1 embaixo, 2 em frente (em cima), 3 à direita, 4 à esquerda */
