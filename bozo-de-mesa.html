@@ -44,7 +44,9 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
 /* ---------- Mesa de jogo ---------- */
 /* Mesa em volta: cartelas em cima, embaixo e nas laterais, dados sempre no meio */
 #game{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto auto;
-  grid-template-areas:". top ." "left center right" ". bottom ." "tools tools tools";gap:10px;min-height:calc(100vh - 68px);--cw:clamp(160px,28vw,250px);--ch:calc(var(--cw) * .85)}
+  grid-template-areas:". top ." "left center right" ". bottom ." "tools tools tools";gap:10px;min-height:calc(100vh - 68px);min-height:calc(100dvh - 68px);
+  /* As cartelas medem pela largura e pela altura da tela, para a mesa inteira caber sem rolar */
+  --cw:clamp(140px,min(28vw,calc((100vh - 430px) / 1.7)),250px);--cw:clamp(140px,min(28vw,calc((100dvh - 430px) / 1.7)),250px);--ch:calc(var(--cw) * .85)}
 .area{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
 .area.top{grid-area:top}.area.bottom{grid-area:bottom}
 .area.left{grid-area:left;flex-direction:column}.area.right{grid-area:right;flex-direction:column}
@@ -132,7 +134,9 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
 .cell b{font-size:16px;min-height:17px}
 #roll{width:96px;height:108px}
 .cup{font-size:16px}
-.die{width:clamp(42px,5.2vw,56px)}
+/* Os 5 dados ficam sempre numa fileira, mesmo quando o centro gira para um jogador do lado */
+.dice{flex-wrap:nowrap;gap:8px}
+.die{width:clamp(34px,min(5.2vw,calc((var(--iw,420px) - 48px) / 5)),56px)}
 .play{gap:16px}
 #mark{font-size:16px;padding:10px 18px}
 .tools button{padding:6px 10px;min-height:36px;font-size:13px}
@@ -188,6 +192,7 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
     <div class="area bottom" id="areaBottom"></div>
     <div class="tools">
       <button id="sound" aria-label="Ligar ou desligar som">🔊 Som</button>
+      <button id="full" hidden>⛶ Tela cheia</button>
       <button id="rulesBtn">Regras</button>
       <button id="newgame">Novo jogo</button>
       <button id="reset">Zerar tudo</button>
@@ -280,20 +285,21 @@ function renderSetup(){
   $('count').querySelectorAll('button').forEach(b=>b.onclick=()=>{keepNames();nPlayers=+b.dataset.n;tone(600,.05,'triangle',.1);renderSetup()});
   $('names').innerHTML=Array.from({length:nPlayers},(_,i)=>{
     const bot=!!draftBots[i];
-    return `<div class="pl"><label for="nome${i}">Jogador ${i+1} · ${['embaixo','em cima','à direita','à esquerda'][i]}</label>
+    return `<div class="pl"><label for="nome${i}">Jogador ${i+1} · ${sideOf(nPlayers,i)}</label>
       <div class="plrow"><input id="nome${i}" maxlength="12" placeholder="${bot?BOTNAMES[i]:'Jogador '+(i+1)}" value="${esc(draftNames[i]||'')}">
       <button class="kind" data-i="${i}" aria-pressed="${bot}" title="Trocar entre pessoa e computador">${bot?'🤖 Computador':'🧑 Pessoa'}</button></div></div>`}).join('');
   $('names').querySelectorAll('.kind').forEach(b=>b.onclick=()=>{keepNames();const i=+b.dataset.i;draftBots[i]=!draftBots[i];tone(draftBots[i]?500:700,.05,'triangle',.1);renderSetup()});
 }
 function keepNames(){draftNames=Array.from({length:6},(_,i)=>{const el=$('nome'+i);return el?el.value:(draftNames[i]||'')})}
 $('start').onclick=()=>{keepNames();audio();newGame(Array.from({length:nPlayers},(_,i)=>{const bot=!!draftBots[i];return {name:(draftNames[i]||'').trim()||(bot?BOTNAMES[i]:`Jogador ${i+1}`),bot}}))};
+$('names').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();$('start').onclick()}});
 $('vsBot').onclick=()=>{keepNames();nPlayers=2;draftBots=[false,true];renderSetup();$('start').onclick()};
 
 function newGame(specs,keep){
   G={players:specs.map(s=>({name:s.name,bot:!!s.bot,sc:{}})),cur:0,dice:[1,2,3,4,5],held:[0,0,0,0,0],rolls:0,sel:null,baixo:false,over:false,
      wins:keep?keep.wins:specs.map(()=>0),games:keep?keep.games:0};
   busy=false;$('hint').classList.remove('flash');
-  save();$('end').hidden=true;$('setup').hidden=true;$('game').hidden=false;render();maybeBot();
+  save();$('end').hidden=true;$('setup').hidden=true;$('game').hidden=false;render();maybeBot();keepAwake();
 }
 const specsOf=()=>G.players.map(p=>({name:p.name,bot:p.bot}));
 
@@ -330,10 +336,11 @@ function seatHTML(p,i){
   return `<div class="seat${cur?' cur':''}"><div class="seathead"><b>${p.bot?'🤖 ':''}${esc(p.name)}</b><em class="wins" title="Partidas ganhas">🏆 ${G.wins[i]}</em><span>${total(p)}</span></div><div class="sheet">${cells}${sheetLines(i+1)}</div></div>`;
 }
 /* Lugar de cada jogador em volta da mesa (a vez passa no sentido horário) */
-/* Jogador 1 embaixo, 2 em frente (em cima), 3 à direita, 4 à esquerda */
-const SEATS={2:{bottom:[0],top:[1]},3:{bottom:[0],top:[1],right:[2]},4:{bottom:[0],top:[1],right:[2],left:[3]}};
-/* A vez gira em volta da mesa: embaixo → esquerda → em cima → direita */
-const ORDER={2:[0,1],3:[0,1,2],4:[0,3,1,2]};
+/* A vez gira em volta da mesa (embaixo → esquerda → em cima → direita) e segue o número de cada jogador */
+const SEATS={2:{bottom:[0],top:[1]},3:{bottom:[0],top:[1],right:[2]},4:{bottom:[0],left:[1],top:[2],right:[3]}};
+const SIDE={bottom:'embaixo',top:'em cima',left:'à esquerda',right:'à direita'};
+const sideOf=(n,i)=>SIDE[Object.keys(SEATS[n]).find(k=>SEATS[n][k].includes(i))];
+const ORDER={2:[0,1],3:[0,1,2],4:[0,1,2,3]};
 const nextPlayer=c=>{const o=ORDER[G.players.length];return o[(o.indexOf(c)+1)%o.length]};
 function renderSeats(){
   const map=SEATS[G.players.length];
@@ -496,6 +503,18 @@ function showEnd(boca){
   $('rank').innerHTML=ranked.map((r,i)=>`<li class="r"><span>${i===0?'👑 ':''}${G.players[r.i].bot?'🤖 ':''}${r.n}</span><span>${r.t} pts · 🏆 ${G.wins[r.i]}</span></li>`).join('');
   $('end').hidden=false;
 }
+/* Tela cheia, quando o navegador deixa */
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+if(document.fullscreenEnabled||document.webkitFullscreenEnabled){
+  $('full').hidden=false;
+  $('full').onclick=()=>{const d=document.documentElement;try{fsEl()?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(d.requestFullscreen||d.webkitRequestFullscreen).call(d)}catch(e){}};
+  const lbl=()=>{$('full').textContent=fsEl()?'⛶ Sair da tela cheia':'⛶ Tela cheia'};
+  document.addEventListener('fullscreenchange',lbl);document.addEventListener('webkitfullscreenchange',lbl);
+}
+/* A tela do tablet não apaga enquanto a partida está aberta */
+let lock=null;
+async function keepAwake(){try{if(!lock&&!$('game').hidden&&document.visibilityState==='visible'&&navigator.wakeLock){lock=await navigator.wakeLock.request('screen');lock.addEventListener('release',()=>{lock=null})}}catch(e){}}
+document.addEventListener('visibilitychange',keepAwake);
 function toSetup(){
   $('end').hidden=true;$('game').hidden=true;$('setup').hidden=false;
   try{localStorage.removeItem('bozo-game2')}catch(e){}
