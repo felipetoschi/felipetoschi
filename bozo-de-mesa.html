@@ -25,9 +25,14 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
 .count{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .count button{width:68px;height:68px;border-radius:16px;border:2px solid var(--line);background:#0003;color:var(--paper);font-family:var(--display);font-size:30px}
 .count button[aria-pressed="true"]{background:var(--gold);color:var(--ink);border-color:var(--gold)}
-.names{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;width:min(100%,640px)}
-.names label{display:flex;flex-direction:column;gap:4px;text-align:left;font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
-.names input{font:inherit;font-size:17px;text-transform:none;letter-spacing:0;padding:10px 12px;border-radius:10px;border:2px solid var(--line);background:#0003;color:var(--paper);min-width:0}
+.names{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;width:min(100%,680px)}
+.names .pl{display:flex;flex-direction:column;gap:4px;text-align:left}
+.names label{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.plrow{display:flex;gap:6px}
+.names input{flex:1;font:inherit;font-size:17px;padding:10px 12px;border-radius:10px;border:2px solid var(--line);background:#0003;color:var(--paper);min-width:0}
+.kind{flex:none;border:2px solid var(--line);background:#0003;color:var(--paper);border-radius:10px;padding:0 10px;font-weight:800;font-size:14px}
+.kind[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.vsbot{border:2px solid var(--gold);background:none;color:var(--gold);border-radius:14px;padding:10px 20px;font-weight:900;font-size:16px}
 .big{border:none;border-radius:14px;background:var(--gold);color:var(--ink);font-family:var(--display);font-size:22px;padding:14px 34px;box-shadow:0 5px 0 #a87a1e}
 .big:active{transform:translateY(3px);box-shadow:0 2px 0 #a87a1e}
 .big:disabled{opacity:.45;cursor:default;transform:none;box-shadow:0 5px 0 #a87a1e}
@@ -90,7 +95,7 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
 @keyframes land{0%{transform:translateY(-14px) rotate(12deg)}70%{transform:translateY(2px)}100%{transform:none}}
 #baixo{border:2px solid var(--gold);background:#0004;color:var(--gold);border-radius:12px;padding:6px 12px;font-weight:900;font-size:14px;min-height:36px}
 #baixo:disabled{opacity:.35;cursor:default}
-#baixo.used{background:var(--gold);color:var(--ink);opacity:1}
+#baixo.used{background:var(--gold);color:var(--ink)}
 .die.flip{animation:flip .45s ease-in-out}
 @keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg) translateY(-10px)}100%{transform:rotateX(0)}}
 #rollsLeft{color:var(--muted);font-weight:800;font-size:14px}
@@ -152,6 +157,7 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
     <div class="count" id="count" role="group" aria-label="Número de jogadores"></div>
     <div class="names" id="names"></div>
     <button class="big" id="start">Começar</button>
+    <button class="vsbot" id="vsBot">🤖 Jogar contra o computador</button>
   </section>
 
   <!-- Jogo -->
@@ -165,7 +171,7 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
         <div class="side">
           <button id="roll" aria-label="Lançar os dados"><span class="cup">Lançar</span></button>
           <span id="rollsLeft">3 lançamentos</span>
-          <button id="baixo" disabled title="Vira os dados que acabaram de cair: vale a face de baixo">Pedir baixo</button>
+          <button id="baixo" disabled aria-pressed="false" title="A partir do segundo lançamento: no próximo lançamento vale a face de baixo">Pedir baixo</button>
         </div>
         <div class="side">
           <div class="dice" id="dice"></div>
@@ -192,11 +198,12 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
     <ul>
       <li>Cada jogador tem até 3 lançamentos por vez. Toque nos dados que quer guardar; os outros rolam de novo.</li>
       <li>Depois, toque numa casa vazia da sua cartela e aperte Marcar. Se nada servir, você risca uma casa (vale zero).</li>
-      <li>Pedir baixo: depois de lançar, você pode virar os dados que acabaram de cair e valer a face de baixo (1↔6, 2↔5, 3↔4). Uma vez por lançamento, sem volta; os dados guardados não viram.</li>
+      <li>Pedir baixo: a partir do segundo lançamento, antes de lançar, você pode pedir baixo. Os dados que caírem valem a face de baixo (1↔6, 2↔5, 3↔4). Os dados guardados não viram. Dá para cancelar antes de lançar.</li>
       <li>Ás a Sena: soma dos dados daquele número.</li>
       <li>Full (3 + 2 iguais) 10, Seguida (1 a 5 ou 2 a 6) 20, Quadrada (4 iguais) 30, General (5 iguais) 40.</li>
       <li>De boca (no primeiro lançamento): Full 15, Seguida 25, Quadrada 35. General de boca acaba o jogo e ganha na hora.</li>
       <li>O 🏆 ao lado do nome conta quantas partidas cada um ganhou. "Zerar tudo" apaga as vitórias e recomeça.</li>
+      <li>Na tela inicial, troque qualquer jogador para 🤖 Computador, ou toque em "Jogar contra o computador".</li>
       <li>Quando todas as cartelas estiverem cheias, ganha quem tiver mais pontos.</li>
     </ul>
     <div class="btns"><button class="big" id="closeRules">Entendi</button></div>
@@ -226,8 +233,11 @@ const LAYOUT=['1','4','full','2','5','seq','3','6','quad',null,null,'gen'];
 /* Posição das bolinhas num dado de 100x100 */
 const P={a:[28,28],b:[72,28],c:[28,50],d:[50,50],e:[72,50],f:[28,72],g:[72,72]};
 const PIPS={1:'d',2:'ag',3:'adg',4:'abfg',5:'abdfg',6:'abcefg'};
+const BOTNAMES=['Robozó','Zé do Copo','Dona Sorte','Seu Dado'];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let G=null,nPlayers=2,busy=false,muted=false,draftNames=[];
+let G=null,nPlayers=2,busy=false,muted=false,draftNames=[],draftBots=[];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const isBot=()=>!!(G&&G.players[G.cur].bot);
 
 /* ---------- Som ---------- */
 let ac=null;
@@ -237,6 +247,7 @@ function noise(dur,vol,freq,delay=0){if(muted)return;const a=audio();if(!a)retur
 const rattle=()=>noise(.06,.5,1500+Math.random()*2500);
 const landSound=()=>{for(let i=0;i<5;i++)noise(.04,.6,3000+Math.random()*1500,i*.045)};
 const markSound=()=>{tone(660,.12,'triangle',.15);tone(990,.18,'triangle',.12,.08)};
+const flipSound=()=>{noise(.08,.5,2200);tone(380,.1,'triangle',.1,.05)};
 const fanfare=()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.22,'triangle',.18,i*.12));
 function setSoundLabel(){$('sound').textContent=muted?'🔇 Som':'🔊 Som'}
 $('sound').onclick=()=>{muted=!muted;setSoundLabel();try{localStorage.setItem('bozo-mute',muted?'1':'0')}catch(e){}};
@@ -258,22 +269,30 @@ const deBoca=()=>G.rolls===1;
 
 /* ---------- Salvar ---------- */
 function save(){try{localStorage.setItem('bozo-game2',JSON.stringify(G))}catch(e){}}
-function load(){try{const g=JSON.parse(localStorage.getItem('bozo-game2'));if(g&&g.players&&!g.over&&g.players.length<=4){g.wins=g.wins||g.players.map(()=>0);g.games=g.games||0;return g}}catch(e){}return null}
+function load(){try{const g=JSON.parse(localStorage.getItem('bozo-game2'));if(g&&g.players&&!g.over&&g.players.length<=4){g.wins=g.wins||g.players.map(()=>0);g.games=g.games||0;g.baixo=false;return g}}catch(e){}return null}
 
 /* ---------- Tela inicial ---------- */
 function renderSetup(){
   $('count').innerHTML=[2,3,4].map(n=>`<button data-n="${n}" aria-pressed="${n===nPlayers}">${n}</button>`).join('');
   $('count').querySelectorAll('button').forEach(b=>b.onclick=()=>{keepNames();nPlayers=+b.dataset.n;tone(600,.05,'triangle',.1);renderSetup()});
-  $('names').innerHTML=Array.from({length:nPlayers},(_,i)=>`<label for="nome${i}">Jogador ${i+1} · ${['embaixo','em cima','à direita','à esquerda'][i]}<input id="nome${i}" maxlength="12" placeholder="Jogador ${i+1}" value="${(draftNames[i]||'').replace(/"/g,'&quot;')}"></label>`).join('');
+  $('names').innerHTML=Array.from({length:nPlayers},(_,i)=>{
+    const bot=!!draftBots[i];
+    return `<div class="pl"><label for="nome${i}">Jogador ${i+1} · ${['embaixo','em cima','à direita','à esquerda'][i]}</label>
+      <div class="plrow"><input id="nome${i}" maxlength="12" placeholder="${bot?BOTNAMES[i]:'Jogador '+(i+1)}" value="${esc(draftNames[i]||'')}">
+      <button class="kind" data-i="${i}" aria-pressed="${bot}" title="Trocar entre pessoa e computador">${bot?'🤖 Computador':'🧑 Pessoa'}</button></div></div>`}).join('');
+  $('names').querySelectorAll('.kind').forEach(b=>b.onclick=()=>{keepNames();const i=+b.dataset.i;draftBots[i]=!draftBots[i];tone(draftBots[i]?500:700,.05,'triangle',.1);renderSetup()});
 }
 function keepNames(){draftNames=Array.from({length:6},(_,i)=>{const el=$('nome'+i);return el?el.value:(draftNames[i]||'')})}
-$('start').onclick=()=>{keepNames();audio();newGame(Array.from({length:nPlayers},(_,i)=>(draftNames[i]||'').trim()||`Jogador ${i+1}`))};
+$('start').onclick=()=>{keepNames();audio();newGame(Array.from({length:nPlayers},(_,i)=>{const bot=!!draftBots[i];return {name:(draftNames[i]||'').trim()||(bot?BOTNAMES[i]:`Jogador ${i+1}`),bot}}))};
+$('vsBot').onclick=()=>{keepNames();nPlayers=2;draftBots=[false,true];renderSetup();$('start').onclick()};
 
-function newGame(names,keep){
-  G={players:names.map(n=>({name:n,sc:{}})),cur:0,dice:[1,2,3,4,5],held:[0,0,0,0,0],rolls:0,sel:null,over:false,
-     wins:keep?keep.wins:names.map(()=>0),games:keep?keep.games:0};
-  save();$('end').hidden=true;$('setup').hidden=true;$('game').hidden=false;render();
+function newGame(specs,keep){
+  G={players:specs.map(s=>({name:s.name,bot:!!s.bot,sc:{}})),cur:0,dice:[1,2,3,4,5],held:[0,0,0,0,0],rolls:0,sel:null,baixo:false,over:false,
+     wins:keep?keep.wins:specs.map(()=>0),games:keep?keep.games:0};
+  busy=false;$('hint').classList.remove('flash');
+  save();$('end').hidden=true;$('setup').hidden=true;$('game').hidden=false;render();maybeBot();
 }
+const specsOf=()=>G.players.map(p=>({name:p.name,bot:p.bot}));
 
 /* ---------- Desenho ---------- */
 function dieSVG(v){
@@ -283,7 +302,7 @@ function dieSVG(v){
 function renderDice(){
   $('dice').innerHTML=G.dice.map((v,i)=>`<button class="die ${G.rolls===0?'idle':''} ${G.held[i]?'held':''}" data-i="${i}" aria-label="Dado ${v}${G.held[i]?', guardado':''}" aria-pressed="${!!G.held[i]}">${dieSVG(v)}</button>`).join('');
   $('dice').querySelectorAll('.die').forEach(d=>d.onclick=()=>{
-    if(busy||G.rolls===0||G.rolls>=3)return;
+    if(busy||isBot()||G.rolls===0||G.rolls>=3)return;
     const i=+d.dataset.i;G.held[i]=G.held[i]?0:1;tone(G.held[i]?700:450,.06,'triangle',.1);save();render();
   });
 }
@@ -297,7 +316,7 @@ function seatHTML(p,i){
     if(canPick){const pts=points(id,G.dice,deBoca());return `<button class="cell prev${mid}${G.sel===id?' sel':''}" data-c="${id}" aria-label="${name}: ${pts} pontos"><small>${name}</small><b>${pts||'–'}</b></button>`}
     return `<div class="cell${mid}"><small>${name}</small><b></b></div>`;
   }).join('');
-  return `<div class="seat${cur?' cur':''}"><div class="seathead"><b>${p.name}</b><em class="wins" title="Partidas ganhas">🏆 ${G.wins[i]}</em><span>${total(p)}</span></div><div class="sheet">${cells}</div></div>`;
+  return `<div class="seat${cur?' cur':''}"><div class="seathead"><b>${p.bot?'🤖 ':''}${esc(p.name)}</b><em class="wins" title="Partidas ganhas">🏆 ${G.wins[i]}</em><span>${total(p)}</span></div><div class="sheet">${cells}</div></div>`;
 }
 /* Lugar de cada jogador em volta da mesa (a vez passa no sentido horário) */
 /* Jogador 1 embaixo, 2 em frente (em cima), 3 à direita, 4 à esquerda */
@@ -310,7 +329,7 @@ function renderSeats(){
   ['top','left','right','bottom'].forEach(pos=>{
     $('area'+pos[0].toUpperCase()+pos.slice(1)).innerHTML=(map[pos]||[]).map(i=>`<div class="slot ${pos}">${seatHTML(G.players[i],i)}</div>`).join('');
   });
-  document.querySelectorAll('.cell.prev').forEach(c=>c.onclick=()=>{G.sel=c.dataset.c;tone(520,.05,'triangle',.08);save();render()});
+  document.querySelectorAll('.cell.prev').forEach(c=>c.onclick=()=>{if(isBot())return;G.sel=c.dataset.c;tone(520,.05,'triangle',.08);save();render()});
 }
 const ROT={bottom:0,top:180,right:-90,left:90};
 let lastRot=0;
@@ -327,49 +346,29 @@ function orientCenter(){
 }
 addEventListener('resize',orientCenter);
 function render(){
-  const p=G.players[G.cur],filled=Object.keys(p.sc).length,left=3-G.rolls;
-  $('who').innerHTML=`<small>Partida ${G.games+1} · Rodada ${Math.min(filled+1,NCATS)} de ${NCATS}</small>Vez de ${p.name}`;
-  $('roll').disabled=busy||left<=0;
-  const bx=$('baixo');bx.disabled=busy||G.over||G.rolls===0||!!G.flipped||!G.fell;
-  bx.classList.toggle('used',!!G.flipped);bx.textContent=G.flipped?'Baixo pedido':'Pedir baixo';
+  const p=G.players[G.cur],filled=Object.keys(p.sc).length,left=3-G.rolls,bot=isBot();
+  $('who').innerHTML=`<small>Partida ${G.games+1} · Rodada ${Math.min(filled+1,NCATS)} de ${NCATS}</small>Vez de ${p.bot?'🤖 ':''}${esc(p.name)}`;
+  $('roll').disabled=busy||left<=0||bot;
+  /* Pedir baixo: só a partir do segundo lançamento, e vale para o próximo */
+  const bx=$('baixo');bx.disabled=busy||bot||G.over||G.rolls===0||left<=0;
+  bx.classList.toggle('used',!!G.baixo);bx.setAttribute('aria-pressed',!!G.baixo);bx.textContent=G.baixo?'✓ Baixo pedido':'Pedir baixo';
   $('rollsLeft').textContent=left===0?'Sem lançamentos':`${left} lançamento${left>1?'s':''}`;
   renderDice();renderSeats();orientCenter();
   const h=$('hint');
-  if(!busy&&!h.classList.contains('flash')&&!(G.flipped&&h.textContent.startsWith('Baixo'))){
-    if(G.rolls===0)h.textContent='Toque no copo para lançar.';
+  if(!busy&&!h.classList.contains('flash')){
+    if(bot)h.textContent=`${p.name} está pensando...`;
+    else if(G.rolls===0)h.textContent='Toque no copo para lançar.';
+    else if(left>0&&G.baixo)h.textContent='Baixo pedido: no próximo lançamento vale a face de baixo.';
     else if(left>0)h.textContent='Toque nos dados para guardar, ou escolha uma casa na cartela.';
     else h.textContent='Escolha uma casa na sua cartela.';
   }
   const m=$('mark');
-  if(G.sel&&G.rolls>0&&!busy){const pts=points(G.sel,G.dice,deBoca());m.disabled=false;m.textContent=pts?`Marcar ${pts} em ${CATS[G.sel].n}`:`Riscar ${CATS[G.sel].n}`}
+  if(G.sel&&G.rolls>0&&!busy){const pts=points(G.sel,G.dice,deBoca());m.disabled=bot;m.textContent=pts?`Marcar ${pts} em ${CATS[G.sel].n}`:`Riscar ${CATS[G.sel].n}`}
   else{m.disabled=true;m.textContent=G.rolls?'Escolha uma casa na cartela':'Lance os dados primeiro'}
 }
 
 /* ---------- Jogadas ---------- */
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
-$('roll').onclick=async()=>{
-  if(busy||G.rolls>=3)return;
-  audio();busy=true;G.sel=null;$('hint').classList.remove('flash');$('hint').textContent='Chacoalhando...';
-  if(G.rolls===0)G.held=[0,0,0,0,0];
-  render();
-  $('roll').classList.add('shake');
-  const rt=setInterval(rattle,70),t0=Date.now(),dur=reduce?250:800;
-  while(Date.now()-t0<dur){
-    G.dice=G.dice.map((v,i)=>G.held[i]?v:1+Math.floor(Math.random()*6));
-    renderDice();$('dice').querySelectorAll('.die').forEach((d,i)=>{if(!G.held[i])d.classList.add('tumble')});
-    await wait(90);
-  }
-  clearInterval(rt);$('roll').classList.remove('shake');
-  G.dice=G.dice.map((v,i)=>G.held[i]?v:1+Math.floor(Math.random()*6));
-  G.rolls++;G.flipped=false;G.fell=G.held.map(x=>x?0:1);busy=false;landSound();
-  const c=[0,0,0,0,0,0,0];G.dice.forEach(v=>c[v]++);
-  const call=announce();
-  render();
-  $('dice').querySelectorAll('.die').forEach((d,i)=>{if(!G.held[i])d.classList.add('land')});
-  if(G.rolls===1&&c.includes(5)){G.over=true;save();fanfare();await wait(1000);showEnd(G.cur);return}
-  if(call==='General!')fanfare();
-  save();
-};
 /* Mostra o nome da jogada boa que está nos dados */
 function announce(){
   const c=[0,0,0,0,0,0,0];G.dice.forEach(v=>c[v]++);
@@ -378,40 +377,112 @@ function announce(){
   if(call){h.textContent=call+(G.rolls===1?' De boca!':'');h.classList.add('flash')}else h.classList.remove('flash');
   return call;
 }
-/* Pedir baixo: os dados que acabaram de cair valem a face de baixo (as faces opostas somam 7) */
-$('baixo').onclick=()=>{
-  if(busy||G.over||G.rolls===0||G.flipped||!G.fell)return;
-  G.dice=G.dice.map((v,i)=>G.fell[i]?7-v:v);G.flipped=true;
-  noise(.08,.5,2200);tone(380,.1,'triangle',.1,.05);
-  const call=announce();
-  if(!call)$('hint').textContent='Baixo! Agora vale a face de baixo.';
+async function doRoll(){
+  if(busy||G.over||G.rolls>=3)return;
+  const g=G;
+  audio();busy=true;G.sel=null;$('hint').classList.remove('flash');$('hint').textContent='Chacoalhando...';
+  if(G.rolls===0)G.held=[0,0,0,0,0];
   render();
-  if(!reduce)$('dice').querySelectorAll('.die').forEach((d,i)=>{if(G.fell[i])d.classList.add('flip')});
+  $('roll').classList.add('shake');
+  const rt=setInterval(rattle,70),t0=Date.now(),dur=reduce?250:800;
+  while(Date.now()-t0<dur&&G===g){
+    G.dice=G.dice.map((v,i)=>G.held[i]?v:1+Math.floor(Math.random()*6));
+    renderDice();$('dice').querySelectorAll('.die').forEach((d,i)=>{if(!G.held[i])d.classList.add('tumble')});
+    await wait(90);
+  }
+  clearInterval(rt);$('roll').classList.remove('shake');
+  if(G!==g)return;
+  G.dice=G.dice.map((v,i)=>G.held[i]?v:1+Math.floor(Math.random()*6));
+  const fell=G.held.map(x=>!x),baixo=G.rolls>0&&G.baixo;
+  G.rolls++;G.baixo=false;landSound();
+  if(baixo){
+    /* Os dados caem e então são virados: vale a face de baixo (as faces opostas somam 7) */
+    renderDice();$('dice').querySelectorAll('.die').forEach((d,i)=>{if(fell[i])d.classList.add('land')});
+    $('hint').textContent='Baixo! Virando os dados...';
+    await wait(reduce?200:650);
+    if(G!==g)return;
+    G.dice=G.dice.map((v,i)=>fell[i]?7-v:v);flipSound();
+  }
+  busy=false;
+  const c=[0,0,0,0,0,0,0];G.dice.forEach(v=>c[v]++);
+  const call=announce();
+  if(!call&&baixo){$('hint').textContent='Baixo! Vale a face de baixo.';$('hint').classList.add('flash')}
+  render();
+  $('dice').querySelectorAll('.die').forEach((d,i)=>{if(fell[i])d.classList.add(baixo?'flip':'land')});
+  if(G.rolls===1&&c.includes(5)){G.over=true;save();fanfare();await wait(1000);showEnd(G.cur);return}
   if(call==='General!')fanfare();
   save();
+}
+$('roll').onclick=()=>{if(!isBot())doRoll()};
+$('baixo').onclick=()=>{
+  if(busy||isBot()||G.over||G.rolls===0||G.rolls>=3)return;
+  G.baixo=!G.baixo;tone(G.baixo?380:520,.08,'triangle',.1);$('hint').classList.remove('flash');save();render();
 };
-$('mark').onclick=async()=>{
+async function doMark(){
   if(!G.sel||busy)return;
   G.players[G.cur].sc[G.sel]=points(G.sel,G.dice,deBoca());
   markSound();$('hint').classList.remove('flash');
   if(G.players.every(x=>Object.keys(x.sc).length===NCATS)){G.over=true;G.sel=null;G.rolls=0;save();render();await wait(500);showEnd(null);return}
-  G.cur=nextPlayer(G.cur);G.held=[0,0,0,0,0];G.rolls=0;G.sel=null;G.flipped=false;G.fell=null;
-  save();render();
-};
+  G.cur=nextPlayer(G.cur);G.held=[0,0,0,0,0];G.rolls=0;G.sel=null;G.baixo=false;
+  save();render();maybeBot();
+}
+$('mark').onclick=()=>{if(!isBot())doMark()};
+
+/* ---------- Computador ---------- */
+/* Quanto cada casa costuma render: o computador evita gastar uma casa boa com pouco ponto e, se tiver que riscar, risca a que vale menos */
+const EXP={'1':2.1,'2':4.2,'3':6.3,'4':8.4,'5':10.5,'6':12.6,full:6,seq:9,quad:8,gen:5};
+function botPlan(){
+  const p=G.players[G.cur],open=Object.keys(CATS).filter(c=>p.sc[c]===undefined);
+  const best=(d,boca)=>{let bc=null,bv=-1e9;for(const c of open){const v=points(c,d,boca)-EXP[c];if(v>bv){bv=v;bc=c}}return [bv,bc]};
+  const [nowV,nowC]=best(G.dice,deBoca());
+  if(G.rolls>=3)return {cat:nowC};
+  /* Testa cada jeito de guardar os dados e simula o próximo lançamento */
+  const more=3-G.rolls-1>0?1.5:0;let hold=null,bv=nowV;
+  for(let m=0;m<31;m++){
+    let sum=0;const N=150;
+    for(let k=0;k<N;k++)sum+=best(G.dice.map((v,i)=>m>>i&1?v:1+Math.floor(Math.random()*6)),false)[0];
+    const v=sum/N+more;
+    if(v>bv){bv=v;hold=m}
+  }
+  return hold===null?{cat:nowC}:{hold};
+}
+let botRunning=false;
+async function botTurn(){
+  botRunning=true;
+  const g=G,me=G.cur,still=()=>G===g&&!G.over&&G.cur===me&&!$('game').hidden;
+  try{
+    await wait(900);
+    while(still()){
+      if(G.rolls===0){await doRoll();await wait(1000);continue}
+      const plan=botPlan();
+      if(plan.cat){G.sel=plan.cat;tone(520,.05,'triangle',.08);render();await wait(1100);if(still())await doMark();break}
+      const held=G.dice.map((_,i)=>plan.hold>>i&1);
+      if(held.join()!==G.held.join()){G.held=held;tone(700,.06,'triangle',.1);render();await wait(800)}
+      if(!still())break;
+      /* De vez em quando o computador também pede baixo */
+      if(Math.random()<.2){G.baixo=true;tone(380,.08,'triangle',.1);render();await wait(700)}
+      if(!still())break;
+      await doRoll();await wait(1000);
+    }
+  }finally{botRunning=false}
+  maybeBot();
+}
+function maybeBot(){if(G&&!G.over&&!busy&&!botRunning&&isBot()&&!$('game').hidden)botTurn()}
+
 function showEnd(boca){
-  let ranked=G.players.map((p,i)=>({n:p.name,t:total(p),i})).sort((a,b)=>b.t-a.t);
+  let ranked=G.players.map((p,i)=>({n:esc(p.name),t:total(p),i})).sort((a,b)=>b.t-a.t);
   if(boca!==null){
     $('endTitle').textContent='General de boca!';$('endSub').textContent=`${G.players[boca].name} ganhou o jogo na hora!`;
     ranked=[ranked.find(r=>r.i===boca),...ranked.filter(r=>r.i!==boca)];
   }else{
     const top=ranked.filter(r=>r.t===ranked[0].t);
     $('endTitle').textContent='Fim de jogo!';
-    $('endSub').textContent=top.length>1?`Empate entre ${top.map(r=>r.n).join(' e ')}!`:`${ranked[0].n} venceu com ${ranked[0].t} pontos!`;
+    $('endSub').textContent=top.length>1?`Empate entre ${top.map(r=>G.players[r.i].name).join(' e ')}!`:`${G.players[ranked[0].i].name} venceu com ${ranked[0].t} pontos!`;
     fanfare();
   }
   const winners=boca!==null?[boca]:ranked.filter(r=>r.t===ranked[0].t).map(r=>r.i);
   winners.forEach(i=>G.wins[i]++);G.games++;save();
-  $('rank').innerHTML=ranked.map((r,i)=>`<li class="r"><span>${i===0?'👑 ':''}${r.n}</span><span>${r.t} pts · 🏆 ${G.wins[r.i]}</span></li>`).join('');
+  $('rank').innerHTML=ranked.map((r,i)=>`<li class="r"><span>${i===0?'👑 ':''}${G.players[r.i].bot?'🤖 ':''}${r.n}</span><span>${r.t} pts · 🏆 ${G.wins[r.i]}</span></li>`).join('');
   $('end').hidden=false;
 }
 function toSetup(){
@@ -419,8 +490,8 @@ function toSetup(){
   try{localStorage.removeItem('bozo-game2')}catch(e){}
   renderSetup();
 }
-$('again').onclick=()=>newGame(G.players.map(p=>p.name),{wins:G.wins,games:G.games});
-$('toSetup').onclick=()=>{nPlayers=G.players.length;draftNames=G.players.map(p=>p.name);toSetup()};
+$('again').onclick=()=>newGame(specsOf(),{wins:G.wins,games:G.games});
+$('toSetup').onclick=()=>{nPlayers=G.players.length;draftNames=G.players.map(p=>p.name);draftBots=G.players.map(p=>!!p.bot);toSetup()};
 $('rulesBtn').onclick=()=>{$('rules').hidden=false};
 $('closeRules').onclick=()=>{$('rules').hidden=true};
 let resetT=null;
@@ -428,7 +499,7 @@ $('reset').onclick=()=>{
   const b=$('reset');
   if(!resetT){b.textContent='Toque de novo para zerar';resetT=setTimeout(()=>{b.textContent='Zerar tudo';resetT=null},3000);return}
   clearTimeout(resetT);resetT=null;b.textContent='Zerar tudo';
-  $('hint').classList.remove('flash');newGame(G.players.map(p=>p.name));tone(300,.2,'triangle',.15);
+  newGame(specsOf());tone(300,.2,'triangle',.15);
 };
 let confirmT=null;
 $('newgame').onclick=()=>{
@@ -442,7 +513,7 @@ $('newgame').onclick=()=>{
 try{muted=localStorage.getItem('bozo-mute')==='1'}catch(e){}
 setSoundLabel();
 const saved=load();
-if(saved){G=saved;$('setup').hidden=true;$('game').hidden=false;render()}else renderSetup();
+if(saved){G=saved;$('setup').hidden=true;$('game').hidden=false;render();maybeBot()}else renderSetup();
 </script>
 
 </body></html>
