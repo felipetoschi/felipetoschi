@@ -177,7 +177,11 @@ function desenhar(letraNova) {
   const quadros = $("quadros");
   quadros.innerHTML = "";
 
-  estado.atual.resposta.split(" ").forEach((palavra) => {
+  const palavras = estado.atual.resposta.split(" ");
+  // Cada palavra (com seu quadro de espaço) precisa caber inteira numa linha
+  const maior = Math.max(...palavras.map((p, i) => p.length + (i < palavras.length - 1 ? 1 : 0)));
+  quadros.style.setProperty("--maior", Math.max(maior, 8));
+  palavras.forEach((palavra, i) => {
     const grupo = document.createElement("div");
     grupo.className = "palavra";
 
@@ -198,8 +202,18 @@ function desenhar(letraNova) {
       }
       grupo.appendChild(quadro);
     });
+
+    // Quadrado vazio depois da palavra indica que o termo continua (termo composto)
+    if (i < palavras.length - 1) {
+      const espaco = document.createElement("div");
+      espaco.className = "quadro espaco";
+      espaco.setAttribute("aria-label", "espaço entre palavras");
+      grupo.appendChild(espaco);
+    }
     quadros.appendChild(grupo);
   });
+
+  $("composto").textContent = palavras.length > 1 ? `Termo composto: ${palavras.length} palavras` : "";
 
   const vidas = $("vidas");
   vidas.innerHTML = "<span>Vidas</span>";

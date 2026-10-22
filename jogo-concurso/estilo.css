@@ -216,26 +216,44 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px 22px;
+  gap: 10px 4px;
   padding-block: 4px;
+  container-type: inline-size;
+  /* --maior: quadros da maior palavra (definido no jogo.js); encolhe os quadros para caber numa linha */
+  --lado: min(42px, calc((100cqi - (var(--maior, 10) - 1) * 4px) / var(--maior, 10)));
 }
 
-.palavra { display: flex; gap: 5px; }
+.composto {
+  margin: 8px 0 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}
+
+.composto:empty { display: none; }
+
+.palavra { display: flex; gap: 4px; }
 
 .quadro {
-  width: clamp(28px, 7.4vw, 42px);
-  height: clamp(36px, 9.4vw, 52px);
+  width: var(--lado);
+  height: calc(var(--lado) * 1.24);
   display: grid;
   place-items: center;
   border: 2px solid var(--linha);
   border-radius: 4px;
   background: var(--papel);
   font-weight: 800;
-  font-size: clamp(1.05rem, 4.2vw, 1.5rem);
+  font-size: calc(var(--lado) * 0.56);
   text-transform: uppercase;
 }
 
 .quadro.sinal { border-color: transparent; background: none; }
+
+.quadro.espaco {
+  border: 2px dashed var(--linha);
+  background: none;
+  opacity: 0.6;
+}
 
 .quadro.aberto {
   border-color: var(--ouro);
