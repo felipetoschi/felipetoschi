@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Desvende a Lei</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&family=Alegreya+SC:wght@700&family=Alegreya+Sans:wght@400;700;800&display=swap">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<!-- inicio-conteudo -->
+<main class="pagina">
+  <header class="topo">
+    <div class="marca">
+      <h1>Desvende a Lei</h1>
+      <p>Descubra o termo que falta no texto da lei, letra por letra.</p>
+    </div>
+    <div class="placar" aria-live="polite">
+      <div><span>Pontos</span><strong id="pontos">0</strong></div>
+      <div><span>Sequência</span><strong id="sequencia">0</strong></div>
+      <div><span>Recorde</span><strong id="recorde">0</strong></div>
+    </div>
+  </header>
+
+  <section class="escolha" aria-label="Escolha do tema">
+    <div class="grupo" id="grupo-temas"><span class="grupo-rotulo">Matéria</span></div>
+    <div class="grupo" id="grupo-assuntos"><span class="grupo-rotulo">Assunto</span></div>
+  </section>
+
+  <section class="mesa" id="mesa" aria-live="polite">
+    <div id="tela-jogo">
+      <div class="rodada-info">
+        <span class="ref" id="ref"></span>
+        <span class="progresso" id="progresso"></span>
+      </div>
+      <p class="pista" id="pista"></p>
+      <div class="quadros" id="quadros"></div>
+      <div class="situacao">
+        <div class="vidas" id="vidas" aria-label="Vidas"></div>
+        <div class="acoes">
+          <button class="botao" id="btn-dica" type="button">Revelar letra (−1 vida)</button>
+          <button class="botao" id="btn-pular" type="button">Pular</button>
+        </div>
+      </div>
+      <div class="teclado" id="teclado"></div>
+      <div class="resultado" id="resultado" hidden>
+        <p class="veredito" id="veredito"></p>
+        <p class="lei" id="lei"></p>
+        <p class="nota" id="nota"></p>
+        <div><button class="botao principal" id="btn-proximo" type="button">Próximo termo</button></div>
+      </div>
+    </div>
+
+    <div class="fim resultado" id="tela-fim" hidden>
+      <h2 id="fim-titulo"></h2>
+      <p id="fim-resumo"></p>
+      <div id="fim-revisar"></div>
+      <div><button class="botao principal" id="btn-reiniciar" type="button">Jogar de novo</button></div>
+    </div>
+  </section>
+
+  <p class="rodape">Use o teclado do computador para chutar letras e <kbd>Enter</kbd> para avançar. Acentos e ç contam como a letra simples.</p>
+</main>
+<!-- fim-conteudo -->
+<script src="temas.js"></script>
+<script src="jogo.js"></script>
+</body>
+</html>

@@ -8,3 +8,7 @@
 felipetoschi/felipetoschi is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
 --->
+
+## Projetos
+
+- [Desvende a Lei](jogo-concurso/): jogo de "descubra a palavra" para estudar para concursos, começando por Direito Constitucional.
