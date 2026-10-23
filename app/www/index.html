@@ -408,6 +408,7 @@ body.phone{padding:max(4px,env(safe-area-inset-top,0px)) max(4px,env(safe-area-i
       <li>Quando todas as cartelas estiverem cheias, ganha quem tiver mais pontos.</li>
       <li>Só marcador: para jogar com copo e dados de verdade, de 2 a 8 jogadores. Toque numa casa de qualquer cartela e escolha os pontos; toque de novo para corrigir. Com mais de 4 jogadores (ou no celular), toque no nome no ranking para ver a cartela de cada um.</li>
       <li>A partida termina sozinha com General de boca ou quando todas as cartelas estão cheias. No marcador, "Finalizar partida" encerra a qualquer momento e ganha quem tiver mais pontos.</li>
+      <li>Fechou o app? Ao abrir de novo, ele volta onde parou: na partida, no resumo ou na tela inicial, com o placar de vitórias.</li>
       <li>📤 Exportar: gera uma imagem com o resultado e o placar de vitórias para mandar no WhatsApp, e também o texto e (no navegador) uma planilha. Bom para guardar antes de zerar.</li>
       <li>O placar de partidas (🏆) continua enquanto forem os mesmos jogadores, até alguém tocar em "Zerar placar" ou "Zerar tudo".</li>
     </ul>
@@ -508,7 +509,7 @@ const deBoca=()=>G.rolls===1;
 
 /* ---------- Salvar ---------- */
 function save(){try{localStorage.setItem('bozo-game2',JSON.stringify(G))}catch(e){}}
-function load(){try{const g=JSON.parse(localStorage.getItem('bozo-game2'));if(g&&g.players&&!g.over&&g.players.length<=8){g.wins=g.wins||g.players.map(()=>0);g.games=g.games||0;g.baixo=false;g.mode=g.mode||'jogo';g.hist=g.hist||[];return g}}catch(e){}return null}
+function load(){try{const g=JSON.parse(localStorage.getItem('bozo-game2'));if(g&&g.players&&g.players.length<=8){g.wins=g.wins||g.players.map(()=>0);g.games=g.games||0;g.baixo=false;g.mode=g.mode||'jogo';g.hist=g.hist||[];return g}}catch(e){}return null}
 
 /* ---------- Tela inicial ---------- */
 function renderSetup(){
@@ -714,7 +715,7 @@ async function doRoll(){
   if(!call&&baixo){$('hint').textContent='Baixo! Vale a face de baixo.';$('hint').classList.add('flash')}
   render();
   $('dice').querySelectorAll('.die').forEach((d,i)=>{if(fell[i])d.classList.add(baixo?'flip':'land')});
-  if(G.rolls===1&&c.includes(5)){G.over=true;save();fanfare();await wait(1000);showEnd(G.cur);return}
+  if(G.rolls===1&&c.includes(5)){G.over=true;G.bocaBy=G.cur;save();fanfare();await wait(1000);showEnd(G.cur);return}
   if(call==='General!')fanfare();
   save();
 }
@@ -777,7 +778,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(!$('pick')
 async function setScore(i,cat,v){
   closePick();const p=G.players[i];
   if(v==='del'){delete p.sc[cat];tone(400,.08,'triangle',.1);save();render();return}
-  if(v==='boca'){p.sc.gen=40;G.over=true;save();render();fanfare();await wait(900);showEnd(i);return}
+  if(v==='boca'){p.sc.gen=40;G.over=true;G.bocaBy=i;save();render();fanfare();await wait(900);showEnd(i);return}
   p.sc[cat]=+v;markSound();checkVoid(cat);save();render();
   if(G.players.every(x=>Object.keys(x.sc).length===NCATS)){G.over=true;save();await wait(600);showEnd(null)}
 }
@@ -846,21 +847,27 @@ function highlights(p){
   if(x)h.push(`${x} risco${x>1?'s':''}`);
   return h.join(' · ')||'Sem jogadas especiais';
 }
+/* Fim da partida: registra o resultado (uma vez só) e mostra o resumo */
 function showEnd(boca,early){
+  const t=G.players.map(total),best=Math.max(...t);
+  const winners=boca!==null?[boca]:t.map((v,i)=>v===best?i:-1).filter(i=>i>=0);
+  winners.forEach(i=>G.wins[i]++);G.games++;
+  G.hist=[...(G.hist||[]),{n:G.games,w:winners,t,d:new Date().toISOString(),e:!!early}].slice(-200);
+  G.over=true;G.end={boca,early:!!early};save();
+  renderEnd();if(boca===null)fanfare();
+}
+/* Desenha o resumo da última partida; ao reabrir o app na tela de fim, ele aparece de novo sem contar a vitória duas vezes */
+function renderEnd(){
+  const {boca,early}=G.end,winners=G.hist.at(-1).w;
   let ranked=G.players.map((p,i)=>({n:esc(p.name),t:total(p),i})).sort((a,b)=>b.t-a.t);
   if(boca!==null){
     $('endTitle').textContent='General de boca!';$('endSub').textContent=`${G.players[boca].name} ganhou o jogo na hora!`;
     ranked=[ranked.find(r=>r.i===boca),...ranked.filter(r=>r.i!==boca)];
   }else{
-    const top=ranked.filter(r=>r.t===ranked[0].t);
     $('endTitle').textContent=early?'Partida encerrada':'Fim de jogo!';
-    $('endSub').textContent=top.length>1?`Empate entre ${top.map(r=>G.players[r.i].name).join(' e ')}!`:`${G.players[ranked[0].i].name} venceu com ${ranked[0].t} pontos!`;
+    $('endSub').textContent=winners.length>1?`Empate entre ${winners.map(i=>G.players[i].name).join(' e ')}!`:`${G.players[winners[0]].name} venceu com ${ranked[0].t} pontos!`;
     if(early)$('endSub').textContent+=' (finalizada antes de completar as cartelas)';
-    fanfare();
   }
-  const winners=boca!==null?[boca]:ranked.filter(r=>r.t===ranked[0].t).map(r=>r.i);
-  winners.forEach(i=>G.wins[i]++);G.games++;
-  G.hist=[...(G.hist||[]),{n:G.games,w:winners,t:G.players.map(total),d:new Date().toISOString(),e:!!early}].slice(-200);save();
   /* Resumo da partida: posição, pontos e destaques de cada um */
   /* Empate divide a posição */
   ranked.forEach((x,k)=>x.pos=k&&x.t===ranked[k-1].t&&boca===null?ranked[k-1].pos:k+1);
@@ -896,7 +903,8 @@ async function keepAwake(){try{if(!lock&&!$('game').hidden&&document.visibilityS
 document.addEventListener('visibilitychange',keepAwake);
 function toSetup(){
   $('end').hidden=true;$('game').hidden=true;$('setup').hidden=false;setMode(true);
-  try{localStorage.removeItem('bozo-game2')}catch(e){}
+  /* Guarda os jogadores e o placar: ao reabrir, volta na tela inicial e, com os mesmos jogadores, o placar continua */
+  if(G){G.atSetup=true;save()}
   renderSetup();
 }
 $('again').onclick=()=>newGame(specsOf(),keepOf(),G.mode);
@@ -1037,11 +1045,26 @@ $('newgame').onclick=()=>{
   $('toSetup').onclick();
 };
 
+/* ---------- Botão voltar do Android ----------
+   O app chama window.bozoVoltar(): fecha a janela aberta; sem janela, pede um segundo toque para sair */
+let backT=null;
+window.bozoVoltar=()=>{
+  for(const id of ['pick','exp','rules']){if(!$(id).hidden){$(id).hidden=true;return 'ok'}}
+  if(backT){clearTimeout(backT);backT=null;return 'sair'}
+  toast('Aperte voltar de novo para sair. A partida fica salva.');backT=setTimeout(()=>{backT=null},2500);return 'ok';
+};
+
 /* ---------- Início ---------- */
 try{muted=localStorage.getItem('bozo-mute')==='1'}catch(e){}
 setSoundLabel();setBtn('newgame','🏠','Novo jogo');setBtn('reset','↺','Zerar tudo');
 const saved=load();
-if(saved){G=saved;$('setup').hidden=true;$('game').hidden=false;setMode(true);render();maybeBot()}else{setMode(true);renderSetup()}
+/* Reabrir o app volta exatamente onde parou: tela inicial, partida em andamento ou resumo do fim */
+const full=()=>G.players.every(x=>Object.keys(x.sc).length===NCATS);
+if(saved&&saved.atSetup){G=saved;nPlayers=G.players.length;draftNames=G.players.map(p=>p.name);draftBots=G.players.map(p=>!!p.bot);gameMode=G.mode;setMode(true);renderSetup()}
+else if(saved){
+  G=saved;$('setup').hidden=true;$('game').hidden=false;setMode(true);render();
+  if(G.over&&G.end)renderEnd();else if(G.over)showEnd(G.bocaBy??null,G.bocaBy==null&&!full());else maybeBot();
+}else{setMode(true);renderSetup()}
 </script>
 
 </body></html>
