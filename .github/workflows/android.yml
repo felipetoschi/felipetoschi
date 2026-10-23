@@ -49,15 +49,18 @@ jobs:
           name: bozo-de-mesa-teste-${{ github.run_number }}
           path: app/android/app/build/outputs/apk/debug/*.apk
 
-      - name: AAB assinado para a Play Store
-        if: env.HAS_KEY == 'true'
+      # Sempre compila a versão da loja, para pegar erros cedo; só é assinada (e enviada) quando a chave existe
+      - name: AAB para a Play Store
         working-directory: app/android
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
-          KEYSTORE_FILE="$RUNNER_TEMP/upload.jks" ./gradlew --no-daemon bundleRelease
+          if [ "$HAS_KEY" = "true" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            export KEYSTORE_FILE="$RUNNER_TEMP/upload.jks"
+          fi
+          ./gradlew --no-daemon bundleRelease
           rm -f "$RUNNER_TEMP/upload.jks"
 
       - if: env.HAS_KEY == 'true'
@@ -68,4 +71,4 @@ jobs:
 
       - name: Aviso sobre a chave
         if: env.HAS_KEY != 'true'
-        run: echo "::notice::Sem os segredos KEYSTORE_BASE64 e KEYSTORE_PASSWORD, só o APK de teste foi gerado. Veja PUBLICAR.md."
+        run: echo "::notice::Sem os segredos KEYSTORE_BASE64 e KEYSTORE_PASSWORD, o AAB não foi assinado e só o APK de teste foi enviado. Veja PUBLICAR.md."
