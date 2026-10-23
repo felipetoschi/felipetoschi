@@ -2,7 +2,7 @@
 - 👀 I’m interested in Html, Css and JavaScript
 - 🌱 I’m currently learning Html, Css and JavaScript
 - 💞️ I’m looking to collaborate on projects where I can develop and learn.
-- 📫 How to reach me, send a message in whatsapp +556599054357
+- 📫 How to reach me, send a message in whatsapp +5565984728529
 
 <!---
 felipetoschi/felipetoschi is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
