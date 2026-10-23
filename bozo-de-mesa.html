@@ -153,6 +153,73 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
 .cell small{font-size:calc(var(--cw) * .032);line-height:1;white-space:nowrap;margin-top:.5em}
 /* A letra de mão desenha os números baixos dentro da linha; sobe um pouco para ficarem no meio do espaço */
 .cell b{font-size:calc(var(--cw) * .08);line-height:1;min-height:0;transform:translateY(-.12em)}
+/* Barra de ferramentas: ícone + texto */
+.tools button{display:inline-flex;align-items:center;gap:5px}
+.chips,.board{display:none}
+
+/* ---------- Celular ---------- */
+body.phone{padding:max(4px,env(safe-area-inset-top,0px)) max(4px,env(safe-area-inset-right,0px)) max(4px,env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px))}
+.phone .mesa{padding:12px;border-radius:20px;box-shadow:inset 0 0 0 6px var(--wood2),inset 0 0 0 8px #0004,inset 0 0 40px #0008}
+.phone #setup{min-height:calc(100dvh - 32px);gap:14px;padding-block:8px}
+.phone .count button{width:56px;height:56px;font-size:24px}
+.phone .names{grid-template-columns:1fr}
+.phone #game{display:grid;min-height:calc(100vh - 32px);min-height:calc(100dvh - 32px);gap:8px;
+  grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto 1fr auto;grid-template-areas:"chips" "center" "board" "tools";
+  --cw:min(330px,calc(100vw - 40px));--ch:calc(var(--cw) * .6);--pw:calc(100vw - 40px)}
+.phone .area{display:none}
+.phone .center{min-height:0;padding:0}
+.phone .spin{position:static;transform:none;width:100%;transition:none;gap:6px}
+.phone .who{font-size:20px}
+.phone .who small{font-size:10px;letter-spacing:1px}
+.phone .play{flex-direction:column;gap:6px;flex-wrap:nowrap}
+.phone .play .side:first-child{flex-direction:row;gap:12px}
+.phone #roll{width:62px;height:70px}
+.phone .cup{font-size:12px}
+.phone .cup::before{top:8px}.phone .cup::after{bottom:9px;height:5px}
+.phone #baixo{font-size:13px;padding:5px 10px}
+.phone .side{gap:6px}
+.phone .dice{gap:6px}
+.phone .die{width:clamp(34px,calc((var(--pw) - 30px) / 5),52px)}
+.phone .die.held{transform:translateY(-6px)}
+.phone #hint{font-size:13px;min-height:18px}
+.phone #hint.flash{font-size:20px}
+.phone #mark{font-size:15px;padding:9px 16px}
+.phone .chips{grid-area:chips;display:flex;gap:6px}
+.chip{flex:1 1 0;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:0 4px;padding:4px 7px;border-radius:10px;border:2px solid var(--line);background:#0003;color:var(--paper);text-align:left}
+.chip b{grid-column:1/-1;font-family:var(--hand);font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip span{font-family:var(--hand);font-size:19px;font-weight:700;color:var(--gold)}
+.chip em{font-style:normal;font-size:11px;font-weight:800;color:var(--muted)}
+.chip.cur{border-color:var(--gold);box-shadow:0 0 10px #f0b93a77}
+.chip.on{background:var(--paper);color:var(--pen)}
+.chip.on span{color:var(--pen)}.chip.on em{color:#9b8c78}
+.phone .board{grid-area:board;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:0}
+.peek{margin:0;font-size:13px;font-weight:800;color:var(--muted)}
+.peek button{border:none;background:none;color:var(--gold);font:inherit;text-decoration:underline;padding:4px}
+.phone .board .seat{width:var(--cw);height:var(--ch);box-sizing:border-box;padding:7px 8px}
+.phone .board .seat.cur{box-shadow:0 0 0 3px var(--gold),0 0 18px #f0b93a88}
+.phone .seathead{height:22px;margin-bottom:4px}
+.phone .seathead b{font-size:19px}
+.phone .seathead span{font-size:20px}
+.phone .sheet{grid-template-rows:repeat(4,1fr);height:calc(100% - 26px)}
+.phone .cell small{font-size:9px}
+.phone .cell b{font-size:19px}
+.phone .tools{gap:6px;flex-wrap:nowrap}
+.phone .tools button{padding:4px 10px;min-height:38px;min-width:42px;justify-content:center;font-size:15px}
+.phone .tools .tx{display:none}
+.phone .tools .ask .tx{display:inline;font-size:12px}
+/* Celular bem pequeno: cartela um pouco mais baixa */
+@media (max-height:600px) and (min-height:500px){.phone #game{--ch:calc(var(--cw) * .54)}}
+/* Celular deitado: dados à esquerda, placar e cartela à direita */
+@media (max-height:499px){
+  .phone #game{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr auto;
+    grid-template-areas:"center chips" "center board" "center tools";
+    --cw:min(300px,40vw);--ch:calc(var(--cw) * .6);--pw:calc(60vw - 150px)}
+  .phone .chips{width:var(--cw)}
+  .phone .chip{padding:3px 6px}
+  .phone .play{flex-direction:row;align-items:center}
+  .phone .play .side:first-child{flex-direction:column;gap:4px}
+  .phone .center{align-self:center}
+}
 @media (prefers-reduced-motion:reduce){.die.tumble,.die.land,.die.flip,#roll.shake .cup{animation:none}}
 </style>
 
@@ -190,12 +257,15 @@ h1{font-family:var(--display);font-weight:400;color:var(--gold);margin:0;font-si
     </div>
     <div class="area right" id="areaRight"></div>
     <div class="area bottom" id="areaBottom"></div>
+    <!-- Só no celular: placar de todos em cima e a cartela de quem está jogando -->
+    <div class="chips" id="chips"></div>
+    <div class="board" id="board"></div>
     <div class="tools">
-      <button id="sound" aria-label="Ligar ou desligar som">🔊 Som</button>
-      <button id="full" hidden>⛶ Tela cheia</button>
-      <button id="rulesBtn">Regras</button>
-      <button id="newgame">Novo jogo</button>
-      <button id="reset">Zerar tudo</button>
+      <button id="sound" aria-label="Ligar ou desligar som"></button>
+      <button id="full" hidden aria-label="Tela cheia"></button>
+      <button id="rulesBtn" aria-label="Regras"><span class="ic">📖</span><span class="tx">Regras</span></button>
+      <button id="newgame" aria-label="Novo jogo"></button>
+      <button id="reset" aria-label="Zerar tudo"></button>
     </div>
   </section>
 </div>
@@ -257,7 +327,9 @@ const landSound=()=>{for(let i=0;i<5;i++)noise(.04,.6,3000+Math.random()*1500,i*
 const markSound=()=>{tone(660,.12,'triangle',.15);tone(990,.18,'triangle',.12,.08)};
 const flipSound=()=>{noise(.08,.5,2200);tone(380,.1,'triangle',.1,.05)};
 const fanfare=()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.22,'triangle',.18,i*.12));
-function setSoundLabel(){$('sound').textContent=muted?'🔇 Som':'🔊 Som'}
+/* Botões da barra: ícone + texto (no celular aparece só o ícone, menos quando pede confirmação) */
+function setBtn(id,ic,tx,ask){const b=$(id);b.innerHTML=`<span class="ic">${ic}</span><span class="tx">${tx}</span>`;b.classList.toggle('ask',!!ask)}
+function setSoundLabel(){setBtn('sound',muted?'🔇':'🔊','Som')}
 $('sound').onclick=()=>{muted=!muted;setSoundLabel();try{localStorage.setItem('bozo-mute',muted?'1':'0')}catch(e){}};
 
 /* ---------- Pontuação ---------- */
@@ -285,7 +357,7 @@ function renderSetup(){
   $('count').querySelectorAll('button').forEach(b=>b.onclick=()=>{keepNames();nPlayers=+b.dataset.n;tone(600,.05,'triangle',.1);renderSetup()});
   $('names').innerHTML=Array.from({length:nPlayers},(_,i)=>{
     const bot=!!draftBots[i];
-    return `<div class="pl"><label for="nome${i}">Jogador ${i+1} · ${sideOf(nPlayers,i)}</label>
+    return `<div class="pl"><label for="nome${i}">Jogador ${i+1}${isPhone()?'':' · '+sideOf(nPlayers,i)}</label>
       <div class="plrow"><input id="nome${i}" maxlength="12" placeholder="${bot?BOTNAMES[i]:'Jogador '+(i+1)}" value="${esc(draftNames[i]||'')}">
       <button class="kind" data-i="${i}" aria-pressed="${bot}" title="Trocar entre pessoa e computador">${bot?'🤖 Computador':'🧑 Pessoa'}</button></div></div>`}).join('');
   $('names').querySelectorAll('.kind').forEach(b=>b.onclick=()=>{keepNames();const i=+b.dataset.i;draftBots[i]=!draftBots[i];tone(draftBots[i]?500:700,.05,'triangle',.1);renderSetup()});
@@ -298,7 +370,7 @@ $('vsBot').onclick=()=>{keepNames();nPlayers=2;draftBots=[false,true];renderSetu
 function newGame(specs,keep){
   G={players:specs.map(s=>({name:s.name,bot:!!s.bot,sc:{}})),cur:0,dice:[1,2,3,4,5],held:[0,0,0,0,0],rolls:0,sel:null,baixo:false,over:false,
      wins:keep?keep.wins:specs.map(()=>0),games:keep?keep.games:0};
-  busy=false;$('hint').classList.remove('flash');
+  busy=false;viewing=null;$('hint').classList.remove('flash');
   save();$('end').hidden=true;$('setup').hidden=true;$('game').hidden=false;render();maybeBot();keepAwake();
 }
 const specsOf=()=>G.players.map(p=>({name:p.name,bot:p.bot}));
@@ -342,17 +414,36 @@ const SIDE={bottom:'embaixo',top:'em cima',left:'à esquerda',right:'à direita'
 const sideOf=(n,i)=>SIDE[Object.keys(SEATS[n]).find(k=>SEATS[n][k].includes(i))];
 const ORDER={2:[0,1],3:[0,1,2],4:[0,1,2,3]};
 const nextPlayer=c=>{const o=ORDER[G.players.length];return o[(o.indexOf(c)+1)%o.length]};
+/* Celular: a mesa não cabe em volta, então o aparelho passa de mão em mão.
+   Em cima o placar de todos; embaixo a cartela de quem joga (toque num nome para ver a cartela dele) */
+const phoneMQ=matchMedia('(max-width: 699px), (max-height: 499px)');
+const isPhone=()=>phoneMQ.matches;
+let viewing=null;
+function setMode(){document.body.classList.toggle('phone',isPhone());if(G&&!$('game').hidden)render()}
+phoneMQ.addEventListener?phoneMQ.addEventListener('change',setMode):phoneMQ.addListener(setMode);
+function renderPhone(){
+  if(viewing!==null&&!G.players[viewing])viewing=null;
+  const show=viewing??G.cur;
+  $('chips').innerHTML=ORDER[G.players.length].map(i=>{const p=G.players[i];
+    return `<button class="chip${i===G.cur?' cur':''}${i===show?' on':''}" data-i="${i}" aria-pressed="${i===show}"><b>${p.bot?'🤖 ':''}${esc(p.name)}</b><em>🏆 ${G.wins[i]}</em><span>${total(p)}</span></button>`}).join('');
+  $('chips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{const i=+c.dataset.i;viewing=i===G.cur?null:i;tone(560,.04,'triangle',.08);render()});
+  $('board').innerHTML=(show!==G.cur?`<p class="peek">Cartela de ${esc(G.players[show].name)} · <button id="backMe">voltar</button></p>`:'')+seatHTML(G.players[show],show);
+  if($('backMe'))$('backMe').onclick=()=>{viewing=null;render()};
+}
 function renderSeats(){
+  ['Top','Left','Right','Bottom'].forEach(k=>$('area'+k).innerHTML='');$('chips').innerHTML=$('board').innerHTML='';
+  if(isPhone()){renderPhone()}else{
   const map=SEATS[G.players.length];
   ['top','left','right','bottom'].forEach(pos=>{
     $('area'+pos[0].toUpperCase()+pos.slice(1)).innerHTML=(map[pos]||[]).map(i=>`<div class="slot ${pos}">${seatHTML(G.players[i],i)}</div>`).join('');
-  });
+  });}
   document.querySelectorAll('.cell.prev').forEach(c=>c.onclick=()=>{if(isBot())return;G.sel=c.dataset.c;tone(520,.05,'triangle',.08);save();render()});
 }
 const ROT={bottom:0,top:180,right:-90,left:90};
 let lastRot=0;
 function orientCenter(){
   if(!G||$('game').hidden)return;
+  if(isPhone()){lastRot=0;$('spinWrap').style.setProperty('--cr','0deg');return}
   const map=SEATS[G.players.length];
   const pos=Object.keys(map).find(k=>map[k].includes(G.cur))||'bottom';
   let r=ROT[pos];
@@ -441,7 +532,7 @@ async function doMark(){
   G.players[G.cur].sc[G.sel]=points(G.sel,G.dice,deBoca());
   markSound();$('hint').classList.remove('flash');
   if(G.players.every(x=>Object.keys(x.sc).length===NCATS)){G.over=true;G.sel=null;G.rolls=0;save();render();await wait(500);showEnd(null);return}
-  G.cur=nextPlayer(G.cur);G.held=[0,0,0,0,0];G.rolls=0;G.sel=null;G.baixo=false;
+  G.cur=nextPlayer(G.cur);G.held=[0,0,0,0,0];G.rolls=0;G.sel=null;G.baixo=false;viewing=null;
   save();render();maybeBot();
 }
 $('mark').onclick=()=>{if(!isBot())doMark()};
@@ -508,7 +599,7 @@ const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
 if(document.fullscreenEnabled||document.webkitFullscreenEnabled){
   $('full').hidden=false;
   $('full').onclick=()=>{const d=document.documentElement;try{fsEl()?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(d.requestFullscreen||d.webkitRequestFullscreen).call(d)}catch(e){}};
-  const lbl=()=>{$('full').textContent=fsEl()?'⛶ Sair da tela cheia':'⛶ Tela cheia'};
+  const lbl=()=>setBtn('full','⛶',fsEl()?'Sair da tela cheia':'Tela cheia');lbl();
   document.addEventListener('fullscreenchange',lbl);document.addEventListener('webkitfullscreenchange',lbl);
 }
 /* A tela do tablet não apaga enquanto a partida está aberta */
@@ -527,21 +618,22 @@ $('closeRules').onclick=()=>{$('rules').hidden=true};
 let resetT=null;
 $('reset').onclick=()=>{
   const b=$('reset');
-  if(!resetT){b.textContent='Toque de novo para zerar';resetT=setTimeout(()=>{b.textContent='Zerar tudo';resetT=null},3000);return}
-  clearTimeout(resetT);resetT=null;b.textContent='Zerar tudo';
+  if(!resetT){setBtn('reset','↺','Toque de novo para zerar',1);resetT=setTimeout(()=>{setBtn('reset','↺','Zerar tudo');resetT=null},3000);return}
+  clearTimeout(resetT);resetT=null;setBtn('reset','↺','Zerar tudo');
   newGame(specsOf());tone(300,.2,'triangle',.15);
 };
 let confirmT=null;
 $('newgame').onclick=()=>{
   const b=$('newgame');
-  if(!confirmT){b.textContent='Toque de novo para sair';confirmT=setTimeout(()=>{b.textContent='Novo jogo';confirmT=null},3000);return}
-  clearTimeout(confirmT);confirmT=null;b.textContent='Novo jogo';
+  if(!confirmT){setBtn('newgame','🏠','Toque de novo para sair',1);confirmT=setTimeout(()=>{setBtn('newgame','🏠','Novo jogo');confirmT=null},3000);return}
+  clearTimeout(confirmT);confirmT=null;setBtn('newgame','🏠','Novo jogo');
   $('toSetup').onclick();
 };
 
 /* ---------- Início ---------- */
 try{muted=localStorage.getItem('bozo-mute')==='1'}catch(e){}
-setSoundLabel();
+document.body.classList.toggle('phone',isPhone());
+setSoundLabel();setBtn('newgame','🏠','Novo jogo');setBtn('reset','↺','Zerar tudo');
 const saved=load();
 if(saved){G=saved;$('setup').hidden=true;$('game').hidden=false;render();maybeBot()}else renderSetup();
 </script>
