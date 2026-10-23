@@ -25,6 +25,15 @@ O Bozó de Mesa leva o clássico jogo de dados de bar para o seu tablet ou celul
 • No celular, é só passar o aparelho de mão em mão.
 • Placar de vitórias para saber quem manda na mesa.
 
+📝 SÓ MARCADOR
+• Vai jogar com copo e dados de verdade? Use o app só para marcar: toque na casa e escolha os pontos.
+• Ranking da partida ao vivo e placar de vitórias de cada um.
+
+🎯 DETALHES DE MESA DE BAR
+• Casa anulada: se todo mundo fizer os mesmos pontos na mesma casa, ela não vale para ninguém.
+• Saiu Full, Seguida, Quadrada ou General? O app mostra qual era a chance daquilo acontecer.
+• No fim de cada partida, um resumo com os destaques de cada jogador.
+
 🤖 CONTRA O COMPUTADOR
 • Jogue sozinho contra o computador, ou misture pessoas e computadores na mesma partida.
 
