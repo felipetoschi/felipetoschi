@@ -293,7 +293,10 @@ body.phone{padding:max(4px,env(safe-area-inset-top,0px)) max(4px,env(safe-area-i
 /* Exportar abre por cima do resumo da partida */
 #exp{z-index:25}
 .expbox{width:min(100%,520px)}
-.expbox pre{margin:0;text-align:left;white-space:pre-wrap;font:600 13px/1.45 var(--body);background:#1f5a3a10;border-radius:10px;padding:12px;max-height:42vh;overflow:auto}
+.expbox img{display:block;width:100%;max-height:46vh;object-fit:contain;border-radius:12px;box-shadow:0 4px 14px #0003}
+.big.wa{background:#25d366;color:#fff;box-shadow:0 5px 0 #128c4b}
+.expbox .btns .big{font-size:18px;padding:12px 20px}
+.expbox .btns .ghost{font-size:14px;padding:9px 14px}
 .expbox .btns{position:sticky;bottom:-24px;margin:0 -24px -24px;padding:12px 24px 20px;background:var(--paper)}
 /* Botões sempre à vista, mesmo com muitos jogadores no resumo */
 .endbox .btns{position:sticky;bottom:-24px;margin:0 -24px -24px;padding:12px 24px 20px;background:linear-gradient(#fbf5e600,var(--paper) 14px)}
@@ -405,7 +408,7 @@ body.phone{padding:max(4px,env(safe-area-inset-top,0px)) max(4px,env(safe-area-i
       <li>Quando todas as cartelas estiverem cheias, ganha quem tiver mais pontos.</li>
       <li>Só marcador: para jogar com copo e dados de verdade, de 2 a 8 jogadores. Toque numa casa de qualquer cartela e escolha os pontos; toque de novo para corrigir. Com mais de 4 jogadores (ou no celular), toque no nome no ranking para ver a cartela de cada um.</li>
       <li>A partida termina sozinha com General de boca ou quando todas as cartelas estão cheias. No marcador, "Finalizar partida" encerra a qualquer momento e ganha quem tiver mais pontos.</li>
-      <li>📤 Exportar: compartilha ou copia o placar de vitórias e o resultado de cada partida (e baixa uma planilha, no navegador). Bom para guardar antes de zerar.</li>
+      <li>📤 Exportar: gera uma imagem com o resultado e o placar de vitórias para mandar no WhatsApp, e também o texto e (no navegador) uma planilha. Bom para guardar antes de zerar.</li>
       <li>O placar de partidas (🏆) continua enquanto forem os mesmos jogadores, até alguém tocar em "Zerar placar" ou "Zerar tudo".</li>
     </ul>
     <div class="btns"><button class="big" id="closeRules">Entendi</button></div>
@@ -421,11 +424,14 @@ body.phone{padding:max(4px,env(safe-area-inset-top,0px)) max(4px,env(safe-area-i
 <div class="overlay" id="exp" hidden>
   <div class="box expbox" role="dialog" aria-modal="true" aria-labelledby="expTitle">
     <h2 id="expTitle">Exportar resultados</h2>
-    <pre id="expText"></pre>
+    <img id="expImg" alt="Imagem com o resultado das partidas">
+    <pre id="expText" hidden></pre>
     <div class="btns">
-      <button class="big" id="expShare">📤 Compartilhar</button>
+      <button class="big wa" id="expWa">🟢 Enviar no WhatsApp</button>
+      <button class="big" id="expPic">🖼️ Compartilhar imagem</button>
+      <button class="ghost" id="expWaTxt">💬 Texto no WhatsApp</button>
       <button class="ghost" id="expCopy">📋 Copiar texto</button>
-      <button class="ghost" id="expCsv">📊 Baixar planilha (.csv)</button>
+      <button class="ghost" id="expCsv">📊 Planilha (.csv)</button>
       <button class="ghost reset" id="expClose">Fechar</button>
     </div>
   </div>
@@ -932,21 +938,76 @@ function exportCsv(){
   if(!G.over&&G.players.some(p=>Object.keys(p.sc).length))G.players.forEach(p=>rows.push([G.games+1,'em andamento',p.name,total(p),'','']));
   return '\ufeff'+rows.map(r=>r.map(q).join(';')).join('\r\n');
 }
-const nativeShare=()=>inApp&&window.Capacitor?.Plugins?.Share;
-function openExport(){
-  $('expText').textContent=exportText();
-  $('expShare').hidden=!(nativeShare()||navigator.share);
-  /* No app Android não há downloads; lá a planilha vai pelo compartilhar */
-  $('expCsv').hidden=inApp;
-  $('exp').hidden=false;
+/* Imagem do resultado: a última partida (ou a que está em andamento) e o placar de vitórias, no visual da mesa */
+function rrect(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function fitTxt(x,t,max){if(x.measureText(t).width<=max)return t;while(t.length>1&&x.measureText(t+'…').width>max)t=t.slice(0,-1);return t+'…'}
+async function resultImage(){
+  await Promise.all(['400 40px "Alfa Slab One"','700 40px Caveat','800 20px Nunito','900 20px Nunito'].map(f=>document.fonts.load(f).catch(()=>{})));
+  const P=G.players,last=G.hist.at(-1),live=!last||(!G.over&&P.some(p=>Object.keys(p.sc).length));
+  const rows=P.map((p,i)=>({i,t:live?total(p):last.t[i]})).sort((a,b)=>b.t-a.t);
+  rows.forEach((r,k)=>r.pos=k&&r.t===rows[k-1].t?rows[k-1].pos:k+1);
+  const winners=live?[]:last.w,sub=live?`Partida ${G.games+1} · em andamento`:`Partida ${last.n}${last.d?' · '+fmtDate(last.d):''}`;
+  const W=1080,pad=80,rowH=88,series=G.games>0,order=P.map((_,i)=>i).sort((a,b)=>G.wins[b]-G.wins[a]);
+  const H=pad+200+rows.length*rowH+(series?110+P.length*64:0)+90;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.fillStyle='#5a3518';x.fillRect(0,0,W,H);
+  const g=x.createRadialGradient(W/2,H*.4,60,W/2,H/2,Math.max(W,H)*.75);g.addColorStop(0,'#2b7a4f');g.addColorStop(1,'#1a4d31');
+  rrect(x,24,24,W-48,H-48,44);x.fillStyle=g;x.fill();x.lineWidth=12;x.strokeStyle='#8a5426';x.stroke();
+  x.textAlign='center';x.fillStyle='#f0b93a';x.font='400 78px "Alfa Slab One"';x.fillText('Bozó de Mesa',W/2,pad+78);
+  x.fillStyle='#cfe3d6';x.font='800 30px Nunito';x.fillText(sub+(isScorer()?' · só marcador':''),W/2,pad+128);
+  let y=pad+175;
+  for(const r of rows){
+    const win=winners.includes(r.i);rrect(x,pad,y,W-2*pad,rowH-14,18);x.fillStyle=win?'#f0b93a':'#fbf5e6';x.fill();
+    x.textAlign='left';x.fillStyle=win?'#24170e':'#9b8c78';x.font='900 32px Nunito';x.fillText(win?'👑':r.pos+'º',pad+28,y+50);
+    x.fillStyle=win?'#24170e':'#23306b';x.font='700 48px Caveat';x.fillText(fitTxt(x,P[r.i].name,W-2*pad-280),pad+112,y+54);
+    x.textAlign='right';x.fillText(r.t+' pts',W-pad-30,y+54);y+=rowH;
+  }
+  if(series){
+    y+=36;x.textAlign='left';x.fillStyle='#f0b93a';x.font='400 40px "Alfa Slab One"';x.fillText(`Placar de vitórias · ${G.games} partida${G.games>1?'s':''}`,pad,y+30);y+=74;
+    const top=Math.max(1,...G.wins),bx=pad+330,bw=W-2*pad-330-130;
+    for(const i of order){
+      x.fillStyle='#fbf5e6';x.font='700 40px Caveat';x.textAlign='left';x.fillText(fitTxt(x,P[i].name,300),pad,y+14);
+      rrect(x,bx,y-8,bw,22,11);x.fillStyle='#ffffff22';x.fill();
+      if(G.wins[i]){rrect(x,bx,y-8,Math.max(22,bw*G.wins[i]/top),22,11);x.fillStyle='#f0b93a';x.fill()}
+      x.textAlign='right';x.fillStyle='#fbf5e6';x.font='900 32px Nunito';x.fillText('🏆 '+G.wins[i],W-pad,y+14);y+=64;
+    }
+  }
+  x.textAlign='center';x.fillStyle='#cfe3d699';x.font='800 24px Nunito';x.fillText(`${fmtDate(Date.now())} · Bozó de Mesa 🎲`,W/2,H-pad+24);
+  return c;
 }
+/* No app Android: plugin próprio que manda imagem/texto direto para o WhatsApp (ou abre a lista de apps) */
+const sendNative=o=>window.Capacitor.nativePromise('Compartilhar','enviar',o);
+const WA='com.whatsapp',CAPTION='Resultado do Bozó de Mesa 🎲';
+let expCanvas=null;
+const canShareFiles=()=>{try{return !!(navigator.canShare&&navigator.canShare({files:[new File([''],'a.png',{type:'image/png'})]}))}catch(e){return false}};
+async function openExport(){
+  $('expText').textContent=exportText();
+  expCanvas=await resultImage();$('expImg').src=expCanvas.toDataURL('image/png');
+  $('expWa').hidden=!inApp;
+  $('expPic').textContent=inApp||canShareFiles()?'🖼️ Compartilhar imagem':'⬇️ Baixar imagem';
+  $('expPic').classList.toggle('big',!inApp);$('expPic').classList.toggle('ghost',inApp);
+  /* No app Android não há downloads; lá a planilha não aparece */
+  $('expCsv').hidden=inApp;
+  $('exp').hidden=false;$('exp').querySelector('.box').scrollTop=0;
+}
+const pngBase64=()=>expCanvas.toDataURL('image/png').split(',')[1];
+function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+const fileName=ext=>`bozo-resultado-${new Date().toISOString().slice(0,10)}.${ext}`;
+$('expWa').onclick=async()=>{try{await sendNative({base64:pngBase64(),text:CAPTION,package:WA})}catch(e){toast('Não deu para abrir o WhatsApp.')}};
+$('expPic').onclick=async()=>{
+  if(inApp){try{await sendNative({base64:pngBase64(),text:CAPTION})}catch(e){toast('Não deu para compartilhar.')}return}
+  const blob=await new Promise(r=>expCanvas.toBlob(r,'image/png')),file=new File([blob],fileName('png'),{type:'image/png'});
+  if(canShareFiles()){try{await navigator.share({files:[file],title:CAPTION})}catch(e){}return}
+  downloadBlob(blob,file.name);toast('Imagem baixada.');
+};
+$('expWaTxt').onclick=async()=>{
+  const text=exportText();
+  if(inApp){try{await sendNative({text,package:WA})}catch(e){toast('Não deu para abrir o WhatsApp.')}return}
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
+};
 $('exportBtn').onclick=openExport;$('exportEnd').onclick=openExport;
 $('expClose').onclick=()=>{$('exp').hidden=true};
 $('exp').onclick=e=>{if(e.target===$('exp'))$('exp').hidden=true};
-$('expShare').onclick=async()=>{
-  const text=exportText();
-  try{const S=nativeShare();if(S)await S.share({title:'Resultados do Bozó de Mesa',text,dialogTitle:'Compartilhar resultados'});else await navigator.share({title:'Resultados do Bozó de Mesa',text})}catch(e){}
-};
 $('expCopy').onclick=async()=>{
   const text=exportText();let ok=false;
   try{await navigator.clipboard.writeText(text);ok=true}catch(e){
@@ -955,9 +1016,7 @@ $('expCopy').onclick=async()=>{
   toast(ok?'Copiado! Cole no WhatsApp, e-mail ou onde quiser.':'Não deu para copiar. Selecione o texto e copie.');
 };
 $('expCsv').onclick=()=>{
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([exportCsv()],{type:'text/csv;charset=utf-8'}));
-  a.download=`bozo-resultados-${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('Planilha baixada.');
+  downloadBlob(new Blob([exportCsv()],{type:'text/csv;charset=utf-8'}),fileName('csv'));toast('Planilha baixada.');
 };
 /* Antes de zerar, lembra de exportar */
 const remindExport=()=>{if(G&&G.games>0)toast('Antes de zerar, toque em 📤 Exportar para guardar os resultados.')};
