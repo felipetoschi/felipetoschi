@@ -1,0 +1,6 @@
+node_modules/
+# Chave de assinatura: nunca vai para o repositório
+*.jks
+*.keystore
+*.p12
+keystore*.txt

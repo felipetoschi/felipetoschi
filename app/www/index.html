@@ -1,7 +1,12 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="pt-BR"><head><meta charset=utf8><meta name="theme-color" content="#1f5a3a"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Bozó de Mesa</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Caveat:wght@500;700&family=Nunito:wght@600;800;900&display=swap">
+<style>
+/* Fontes guardadas junto com o jogo, para funcionar sem internet (licença SIL OFL, ver fonts/LEIAME.txt) */
+@font-face{font-family:"Alfa Slab One";font-weight:400;font-display:swap;src:url(fonts/alfa-slab-one.woff2) format("woff2")}
+@font-face{font-family:"Caveat";font-weight:400 700;font-display:swap;src:url(fonts/caveat.woff2) format("woff2")}
+@font-face{font-family:"Nunito";font-weight:200 1000;font-display:swap;src:url(fonts/nunito.woff2) format("woff2")}
+</style>
 <style>
 /* Layout: o tablet é a mesa. Copo e dados no meio; a cartela de cada jogador fica na borda, virada para quem está sentado ali. Visual único: feltro verde de mesa de bar com borda de madeira. */
 :root{
@@ -596,7 +601,8 @@ function showEnd(boca){
 }
 /* Tela cheia, quando o navegador deixa */
 const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
-if(document.fullscreenEnabled||document.webkitFullscreenEnabled){
+const inApp=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+if(!inApp&&(document.fullscreenEnabled||document.webkitFullscreenEnabled)){
   $('full').hidden=false;
   $('full').onclick=()=>{const d=document.documentElement;try{fsEl()?(document.exitFullscreen||document.webkitExitFullscreen).call(document):(d.requestFullscreen||d.webkitRequestFullscreen).call(d)}catch(e){}};
   const lbl=()=>setBtn('full','⛶',fsEl()?'Sair da tela cheia':'Tela cheia');lbl();

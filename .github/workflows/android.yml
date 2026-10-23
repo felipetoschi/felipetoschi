@@ -1,0 +1,71 @@
+# Compila o app Android do Bozó de Mesa.
+# - Sempre gera um APK de teste (para instalar direto no celular).
+# - Se os segredos KEYSTORE_BASE64 e KEYSTORE_PASSWORD existirem, gera também o AAB assinado para a Play Store.
+# Os arquivos ficam em Actions → (compilação) → Artifacts.
+name: App Android
+
+on:
+  push:
+    paths:
+      - "app/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      HAS_KEY: ${{ secrets.KEYSTORE_BASE64 != '' && secrets.KEYSTORE_PASSWORD != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Instalar dependências e copiar o jogo para o projeto Android
+        working-directory: app
+        run: |
+          npm ci
+          npx cap sync android
+
+      - name: APK de teste
+        working-directory: app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bozo-de-mesa-teste-${{ github.run_number }}
+          path: app/android/app/build/outputs/apk/debug/*.apk
+
+      - name: AAB assinado para a Play Store
+        if: env.HAS_KEY == 'true'
+        working-directory: app/android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          KEYSTORE_FILE="$RUNNER_TEMP/upload.jks" ./gradlew --no-daemon bundleRelease
+          rm -f "$RUNNER_TEMP/upload.jks"
+
+      - if: env.HAS_KEY == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bozo-de-mesa-play-store-${{ github.run_number }}
+          path: app/android/app/build/outputs/bundle/release/*.aab
+
+      - name: Aviso sobre a chave
+        if: env.HAS_KEY != 'true'
+        run: echo "::notice::Sem os segredos KEYSTORE_BASE64 e KEYSTORE_PASSWORD, só o APK de teste foi gerado. Veja PUBLICAR.md."
